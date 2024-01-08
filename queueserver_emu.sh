@@ -1,5 +1,31 @@
 #!/bin/bash -uem
 
+function usage() {
+  sed 's/^  //' << EOF
+
+  Start a queueserver run eigine with caproto-emulated beamline hardware.
+
+  USAGE: ${0##*/} [--install-conda][--install-mongo][--install-redis] \
+                  [--env][--default-config][--download-cache-dir] \
+                  [--profile-name][--help|-h]
+
+  --help or -h
+                  Display this message and exit.
+  --install-[conda|mongo|redis]
+                  These will install respective dependencies
+  --env=CONDA_ENV_NAME or --env CONDA_ENV_NAME
+                  Selects the conda environment. Defalts to 2023-3.3-py310-tiled.
+  --default-config
+                  Writes (or overwrites) the configurations for all dependencies
+                  including Olog, databroker, tiled, and kafka
+  --download-cache-dir=DIR or --download-cache-dir DIR
+                  Choose a cache directory for downloaded components (conda envs,
+                  profiles, etc).
+  --profile-name=PROFILE_NAME or --profile-name PROFILE_NAME
+                  Set the ipython startup profile name. Defaults to "test"
+EOF
+}
+
 # default options
 PROFILE_REPO="git@github.com:NSLS-II-CSX/profile_collection.git"
 PROFILE_BRANCH="qserver"
@@ -44,7 +70,7 @@ while (($#)); do
   --env)
     CONDA_ENV_NAME=$(pick "$val" "$arg2") || shift
     ;;
-  --cache-dir)
+  --download-cache-dir)
     CACHE_DIR=$(pick "$val" "$arg2") || shift
     ;;
   --skip-profile-creation)
@@ -52,6 +78,15 @@ while (($#)); do
     ;;
   --profile-name)
     TEST_PROFILE=$(pick "$val" "$arg2") || shift
+    ;;
+  --help|-h)
+    usage
+    exit 0
+    ;;
+  *)
+    echo "ERROR: argument invalid: '${arg%%=*}'" >&2
+    usage >&2
+    exit 1
     ;;
   esac
   shift
