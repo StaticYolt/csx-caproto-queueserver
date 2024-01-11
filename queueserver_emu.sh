@@ -206,7 +206,7 @@ fi
 systemctl status mongod.service --lines 0 --no-pager
 
 ##[section]Starting: * start redis service
-if ! systemctl is-active --quiet redis-server.service
+if ! systemctl is-active --quiet redis-server.service; then
   echo "SUDO: Starting redis server"
   sudo systemctl start redis-server.service
 fi
