@@ -5,8 +5,8 @@ function usage() {
 
   Start a queueserver run eigine with caproto-emulated beamline hardware.
 
-  USAGE: ${0##*/} [--install-conda][--install-mongo][--install-redis] \
-                  [--env][--default-config][--download-cache-dir] \
+  USAGE: ${0##*/} [--install-conda][--install-mongo][--install-redis] \\
+                  [--env][--default-config][--download-cache-dir] \\
                   [--profile-name][--help|-h]
 
   --help or -h
