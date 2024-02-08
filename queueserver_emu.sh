@@ -5,14 +5,15 @@ function usage() {
 
   Start a queueserver run eigine with caproto-emulated beamline hardware.
 
-  USAGE: ${0##*/} [--install-conda][--install-mongo][--install-redis] \\
+  USAGE: ${0##*/} [--install-conda][--install-mongo][--install-redis][--install-kafka] \\
                   [--env][--default-config][--download-cache-dir] \\
                   [--profile-name][--help|-h]
 
   --help or -h
                   Display this message and exit.
-  --install-[conda|mongo|redis]
+  --install-[conda|mongo|redis|kafka]
                   These will install respective dependencies
+                  Note: kafka assumes rootless docker-compose
   --env=CONDA_ENV_NAME or --env CONDA_ENV_NAME
                   Selects the conda environment. Defalts to 2023-3.3-py310-tiled.
   --default-config
@@ -32,6 +33,7 @@ PROFILE_BRANCH="qserver"
 INSTALL_CONDA=false
 INSTALL_MONGO=false
 INSTALL_REDIS=false
+INSTALL_KAFKA=false
 DEFAULT_CONFIG=false
 SKIP_PROFILE=false
 CONDA_PREFIX="${CONDA_PREFIX:-$HOME/miniconda}"
@@ -63,6 +65,9 @@ while (($#)); do
     ;;
   --install-redis)
     INSTALL_REDIS=true
+    ;;
+  --install-kafka)
+    INSTALL_KAFKA=true
     ;;
   --default-config)
     DEFAULT_CONFIG=true
@@ -169,7 +174,7 @@ fi
 if ! "$SKIP_PROFILE"; then
   echo "Preparing test profile"
   rm -rfv profile_collection
-  git clone "$PROFILE_REPO"
+  git clone "$PROFILE_REPO" profile_collection
   (
     cd profile_collection
     git checkout "$PROFILE_BRANCH"
@@ -196,6 +201,14 @@ if $INSTALL_REDIS; then
   sudo apt-get clean
   sudo apt-get update
   sudo apt-get install -y redis
+fi
+
+if $INSTALL_KAFKA; then
+  # based on https://www.conduktor.io/kafka/how-to-start-kafka-using-docker/
+  rm -rf kafka-stack-docker-compose
+  git clone https://github.com/conduktor/kafka-stack-docker-compose.git kafka-stack-docker-compose
+  docker-compose -f kafka-stack-docker-compose/zk-single-kafka-single.yml up -d
+  docker-compose -f kafka-stack-docker-compose/zk-single-kafka-single.yml ps
 fi
 
 ##[section]Starting: * start mongodb service
