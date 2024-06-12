@@ -248,7 +248,7 @@ EOF
   docker-compose -f zk-single-kafka-single.yml up -d
   docker-compose -f zk-single-kafka-single.yml ps
 fi
-exit
+
 ##[section]Starting: * start mongodb service
 if ! systemctl is-active --quiet mongod; then
   echo "SUDO: Starting mongo daemon"
